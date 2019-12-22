@@ -1,0 +1,91 @@
+# Welcome to Serverless!
+#
+# This file is the main config file for your service.
+# It's very minimal at this point and uses default values.
+# You can always add more config options for more control.
+# We've included some commented out config examples here.
+# Just uncomment any of them to get that config option.
+#
+# For full config options, check the docs:
+#    docs.serverless.com
+#
+# Happy Coding!
+
+service: temperature-sensor
+
+frameworkVersion: ">=1.1.0 <2.0.0"
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: dev
+  region: eu-west-2
+  environment:
+    DYNAMODB_TABLE: "temperature-sensor-readings-${opt:stage, self:provider.stage}"
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
+
+plugins:
+  - serverless-dynamodb-local
+  - serverless-offline  # serverless-offline needs to be last in the list
+
+custom:
+  dynamodb:
+    start:
+      port: 8000
+      inMemory: true
+      migrate: true
+    stages:
+      - local
+
+package:
+ include:
+   - readings/**
+ exclude:
+   - node_modules/**
+
+functions:
+  create:
+    handler: readings/create.handler
+    events:
+      - http:
+          path: temperature/readings
+          method: POST
+  locations:
+    handler: readings/locations.handler
+    events:
+      - http:
+          path: temperature/location
+          method: GET
+  readings:
+    handler: readings/readings.handler
+    events:
+      - http:
+          path: /temperature/location/{name}/readings
+          method: GET
+
+resources:
+  Resources:
+    ReadingsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: "${self:provider.environment.DYNAMODB_TABLE}"
+        KeySchema:
+          - AttributeName: location
+            KeyType: HASH
+          - AttributeName: timestamp
+            KeyType: RANGE
+        AttributeDefinitions:
+          - AttributeName: location
+            AttributeType: S
+          - AttributeName: timestamp
+            AttributeType: N
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1

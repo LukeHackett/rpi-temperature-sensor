@@ -1,0 +1,21 @@
+{
+  "name": "temperature-sensor-lambda",
+  "version": "1.0.0",
+  "description": "",
+  "repository": "",
+  "author": "Luke Hackett",
+  "license": "MIT",
+  "scripts": {
+    "clean": "rm -rf .serverless .dynamodb",
+    "server": "sls offline start --stage=local",
+    "dynamodb": "sls dynamodb start --stage=local"
+  },
+  "dependencies": {
+    "validate": "5.1.0"
+  },
+  "devDependencies": {
+    "aws-sdk": "^2.595.0",
+    "serverless-dynamodb-local": "^0.2.38",
+    "serverless-offline": "^5.12.1"
+  }
+}
