@@ -1,6 +1,6 @@
 'use strict';
 
-const DynamoDb = require('./model/dynamodb');
+const DynamoDb = require('./dynamodb/client');
 
 module.exports.handler = (event, context, callback) => {
     var params = {
@@ -36,7 +36,7 @@ module.exports.handler = (event, context, callback) => {
         }
 
         // create a response
-        return callback(null, get_response(201, {}));
+        return callback(null, get_response(201, data));
     });
 };
 

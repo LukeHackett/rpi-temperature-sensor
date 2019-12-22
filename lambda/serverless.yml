@@ -52,22 +52,22 @@ package:
 
 functions:
   create:
-    handler: readings/create.handler
+    handler: src/create.handler
     events:
       - http:
-          path: temperature/readings
+          path: temperature/locations/reading
           method: POST
   locations:
-    handler: readings/locations.handler
+    handler: src/locations.handler
     events:
       - http:
-          path: temperature/location
+          path: temperature/locations
           method: GET
   readings:
-    handler: readings/readings.handler
+    handler: src/readings.handler
     events:
       - http:
-          path: /temperature/location/{name}/readings
+          path: /temperature/locations/{name}/readings
           method: GET
 
 resources:
