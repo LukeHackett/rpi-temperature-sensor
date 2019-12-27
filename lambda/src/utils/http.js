@@ -27,8 +27,3 @@ module.exports.response = (status, body) => {
         body: JSON.stringify(body)
     };
 };
-
-// TODO - remove
-module.exports.get_response = (status, body) => {
-    return module.exports.response(status, body);
-};

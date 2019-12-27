@@ -41,6 +41,13 @@ custom:
       port: 8000
       inMemory: true
       migrate: true
+      seed: true
+    seed:
+      local:
+        sources:
+          - table: "${self:provider.environment.DYNAMODB_TABLE}"
+            sources:
+              - ./data/local.json
     stages:
       - local
 
@@ -67,7 +74,7 @@ functions:
     handler: src/readings.handler
     events:
       - http:
-          path: /temperature/locations/{name}/readings
+          path: /temperature/locations/{location}/readings
           method: GET
 
 resources:

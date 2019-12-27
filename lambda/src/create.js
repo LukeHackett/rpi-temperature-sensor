@@ -2,7 +2,7 @@
 
 const DynamoDb = require('./dynamodb/client');
 const HttpUtils = require('./utils/http');
-const {ReadingSchema} = require('./model/schema');
+const {ReadingSchema} = require('./validation/schema');
 
 module.exports.handler = (event, context, callback) => {
     const reading = JSON.parse(event.body);

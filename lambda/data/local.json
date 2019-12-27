@@ -1,0 +1,37 @@
+[
+    {
+        "location": "lounge",
+        "timestamp": 1577307089,
+        "celsius": 21.4,
+        "kelvin": 123.56,
+        "fahrenheit": 75
+    },
+    {
+        "location": "lounge",
+        "timestamp": 1577307128,
+        "celsius": 1.44,
+        "kelvin": 12.5,
+        "fahrenheit": 7.5
+    },
+    {
+        "location": "kitchen",
+        "timestamp": 1577307144,
+        "celsius": 13.5,
+        "kelvin": 14.8,
+        "fahrenheit": 30
+    },
+    {
+        "location": "bedroom",
+        "timestamp": 1577307192,
+        "celsius": 5.4,
+        "kelvin": 87.56,
+        "fahrenheit": 60
+    },
+    {
+        "location": "lounge",
+        "timestamp": 1577307264,
+        "celsius": 65.4,
+        "kelvin": 212.56,
+        "fahrenheit": 84
+    }
+]

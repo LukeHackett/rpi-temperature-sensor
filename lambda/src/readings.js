@@ -1,42 +1,45 @@
 'use strict';
 
-const DynamoDb = require('./dynamodb/client');
+const DynamoDb = require('./dynamodb');
+const HttpUtils = require('./utils/http');
+const {ReadingsRequestSchema} = require('./validation/schema');
 
-module.exports.handler = (event, context, callback) => {
-    var params = {
-        TableName: process.env.DYNAMODB_TABLE,
-        KeyConditionExpression: '#location = :location and #ts BETWEEN :start and :end',
-        ExpressionAttributeNames:{
-            "#location": "location",
-            "#ts": "timestamp"
-        },
-        ExpressionAttributeValues: {
-            ":location": "lounge",
-            ":start": 2,
-            ":end": 4
-        },
-        ScanIndexForward: true,
-        Limit: 10
+module.exports.handler = async ({pathParameters, queryStringParameters}, context, callback) => {
+    // Setup a request object
+    const request = {
+        location: pathParameters && pathParameters.location,
+        from: queryStringParameters && parseInt(queryStringParameters.from || 0),
+        to: queryStringParameters && parseInt(queryStringParameters.to || 0) 
     };
 
+    // Validate the incoming parameters
+    const [error] = ReadingsRequestSchema.validate(request)
+    if (error) {
+        return HttpUtils.badRequest(error.message);
+    }
 
-    // Add support for pagination
+    // DynamoDb Query
+    const params = {
+        TableName: process.env.DYNAMODB_TABLE,
+        KeyConditionExpression: '#location = :location and #timestamp BETWEEN :from and :to',
+        ExpressionAttributeNames: {
+            "#location": "location",
+            "#timestamp": "timestamp"
+        },
+        ExpressionAttributeValues: {
+            ":location": request.location,
+            ":from": request.from,
+            ":to": request.to
+        },
+        ScanIndexForward: true
+    };
 
-    DynamoDb.query(params, (error) => {
-        // handle potential errors
-        if (error) {
-            const status = error.statusCode || 501;
-            const response = get_response(status, {
-                status: status,
-                timestamp: epoch(),
-                message: 'Unable to find the readings: ' + error.message,
-            });
+    // Perform a query of the table
+    const data = await DynamoDb.query(params);
 
-            return callback(null, response);
-        }
-
-        // create a response
-        return callback(null, get_response(201, data));
-    });
+    // Sort the data into chronological order
+    return HttpUtils.ok(
+        data.sort((a,b) => a.timestamp - b.timestamp)
+    );
 };
 
