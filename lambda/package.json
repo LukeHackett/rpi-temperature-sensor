@@ -1,20 +1,25 @@
 {
   "name": "temperature-sensor-lambda",
   "version": "1.0.0",
-  "description": "",
-  "repository": "",
+  "description": "A Raspberry Pi temperature sensor connected to AWS lambda powered by serverless",
+  "repository": "https://github.com/LukeHackett/rpi-temperature-sensor/",
   "author": "Luke Hackett",
   "license": "MIT",
   "scripts": {
     "clean": "rm -rf .serverless .dynamodb",
-    "server": "sls offline start --stage=local",
-    "dynamodb": "sls dynamodb start --stage=local"
+    "start": "serverless offline start --stage=local",
+    "sls": "serverless",
+    "dynamodb:install": "serverless dynamodb install",
+    "dynamodb:start": "serverless dynamodb start --stage=local",
+    "deploy:dev": "serverless dynamodb start --stage=dev",
+    "deploy:production": "serverless dynamodb start --stage=production"
   },
   "dependencies": {
     "validate": "5.1.0"
   },
   "devDependencies": {
-    "aws-sdk": "^2.595.0",
+    "aws-sdk": "^2.597.0",
+    "serverless": "^1.60.5",
     "serverless-dynamodb-local": "^0.2.38",
     "serverless-offline": "^5.12.1"
   }

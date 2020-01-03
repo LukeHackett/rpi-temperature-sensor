@@ -1,27 +1,22 @@
 # RPi Temperature Sensor Lambda
 
-To install serverless
-
-```shell
-$ npm install -g serverless
-```
-
 To install the project dependencies
 
 ```shell
 $ npm install
-$ serverless dynamodb install
+$ npm run dynamodb:install
 ```
 
 To start the development server
 
 ```shell
-$ npm run server
+$ npm start
 ```
 
 To deploy the project to AWS
 
 ```shell
-$ serverless config credentials --provider aws --key AWS_KEY --secret AWS_SECRET
-$ serverless deploy
+$ npm run sls -- config credentials --provider aws --key AWS_KEY --secret AWS_SECRET
+$ npm run deploy:dev                # for a dev stack
+$ npm run deploy:production         # for a production stack
 ```
