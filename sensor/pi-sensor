@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+# The location of the raspberry pi
+export LOCATION="bedroom"
+
+# The external location of the raspberry pi.
+# The following 3 exports can be commented out if external weather readings 
+# are not required. 
+export CITY="london"
+export COUNTRY="uk"
+export OPEN_WEATHER_APP_ID="APP_ID"
+
+# Set the Rapsberry Pi GPIO PIN number
+export GPIO_PIN=17
+
+# Execute the python application
+if [[ -n "$CITY" ]] && [[ -n "$COUNTRY" ]]; then 
+    python3 pi-sensor.py $LOCATION --city $CITY --country $COUNTRY
+else 
+    python3 pi-sensor.py $LOCATION
+fi

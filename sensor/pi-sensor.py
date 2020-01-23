@@ -5,6 +5,12 @@ import json
 import time
 import argparse
 import urllib.request
+import Adafruit_DHT
+
+# Sensor Settings
+# Set sensor type : Options are DHT11,DHT22 or AM2302
+SENSOR = Adafruit_DHT.DHT11
+GPIO_PIN = os.getenv('GPIO_PIN', 17)
 
 # Open Weather Application ID
 # Sign up for an account here: https://www.openweathermap.org/ (default key is a sample key)
@@ -18,19 +24,25 @@ def argument_parser():
     return parser
 
 
-def fetch_temperature_from_sensor():
-    # TODO - requires implementation
-    return -10.4
+def fetch_readings_from_sensor():
+    # Use read_retry method. This will retry up to 15 times to
+    # get a sensor reading (waiting 2 seconds between each retry).
+    humidity, temperature = Adafruit_DHT.read_retry(SENSOR, int(GPIO_PIN))
+
+    # Reading the DHT11 is very sensitive to timings and occasionally
+    # the Pi might fail to get a valid reading. So check if readings are valid
+    return temperature, humidity
 
 
-def fetch_temperature_from_api(city=None, country=None):
+def fetch_readings_from_api(city=None, country=None):
     if city and country:
         # todo add &units=metric to enable metric readings
         url = "https://samples.openweathermap.org/data/2.5/weather?q={0},{1}&appid={2}".format(city, country, APP_ID)
-        contents = urllib.request.urlopen(url).read()
-        return json.loads(contents)['main']['temp']
-    
-    return None
+        response = urllib.request.urlopen(url).read()
+        body = json.loads(response)
+        return float(body['main']['temp']), float(body['main']['humidity'])
+
+    return None, None
 
 
 def record_reading(reading):
@@ -61,7 +73,7 @@ def celsius_to_fahrenheit(value):
     return float((value * 9/5) + 32)
 
 
-def get_reading(location, celsius, timestamp=None):
+def get_reading(location, celsius, humidity, timestamp=None):
     if timestamp == None:
         timestamp = epoch_in_seconds()
 
@@ -72,6 +84,7 @@ def get_reading(location, celsius, timestamp=None):
             'kelvin': round(celsius_to_kelvin(celsius), 2),
             'fahrenheit': round(celsius_to_fahrenheit(celsius), 2)
         },
+        'humidity': humidity,
         'timestamp': timestamp
     }
 
@@ -84,14 +97,14 @@ if __name__ == "__main__":
     # Use a consistent timestamp for readings
     timestamp = epoch_in_seconds()
 
-    # Record the local temperature
-    location_temp = fetch_temperature_from_sensor()
-    if location_temp:
-        reading = get_reading(args.location, location_temp, timestamp)
+    # Record the sensor's temperature and humidity
+    sensor_temperature, sensor_humidity = fetch_readings_from_sensor()
+    if sensor_temperature and sensor_humidity:
+        reading = get_reading(args.location, sensor_temperature, sensor_humidity, timestamp)
         record_reading(reading)
 
-    # Record the external temperature (if configured)
-    city_temp = fetch_temperature_from_api(args.city, args.country)
-    if city_temp:
-        reading = get_reading(args.city, city_temp, timestamp)
+    # Record the external location's temperature and humidity (if configured)
+    location_temperature, location_humidity = fetch_readings_from_api(args.city, args.country)
+    if location_temperature and location_humidity:
+        reading = get_reading(args.city, location_temperature, location_humidity, timestamp)
         record_reading(reading)
